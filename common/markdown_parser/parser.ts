@@ -605,10 +605,26 @@ const TaskDeadline = regexParser({
 
 const NamedAnchor = regexParser({
   firstCharCode: 36, // $
-  regex: /^\$[a-zA-Z\.\-\/]+[\w\.\-\/]*/,
+  regex: /^\$[a-zA-Z\.\-\/]+[\w\.\-\/]*(?!\$)/,
   className: "sb-named-anchor",
   nodeType: "NamedAnchor",
   tag: ct.NamedAnchorTag,
+});
+
+const InlineLatex = regexParser({
+  firstCharCode: 36, // $
+  regex: /^\$((?!\$).)+\$/,
+  className: "sb-inline-latex",
+  nodeType: "InlineLatex",
+  tag: ct.InlineLatexTag,
+});
+
+const DisplayLatex = regexParser({
+  firstCharCode: 36, // $
+  regex: /^\$\$.*?[^\\]\$\$/,
+  className: "sb-display-latex",
+  nodeType: "DisplayLatex",
+  tag: ct.DisplayLatexTag,
 });
 
 import { Table } from "./table_parser.ts";
@@ -697,6 +713,8 @@ export const extendedMarkdownLanguage = markdown({
     NakedURL,
     Hashtag,
     TaskDeadline,
+    InlineLatex,
+    DisplayLatex,
     NamedAnchor,
     Superscript,
     Subscript,
@@ -733,6 +751,8 @@ export const extendedMarkdownLanguage = markdown({
           NakedURL: ct.NakedURLTag,
           DeadlineDate: ct.TaskDeadlineTag,
           NamedAnchor: ct.NamedAnchorTag,
+          InlineLatex: ct.InlineLatexTag,
+          DisplayLatex: ct.DisplayLatexTag,
         }),
       ],
     },

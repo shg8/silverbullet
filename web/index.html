@@ -1,73 +1,69 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns#">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <base href="/" />
-    <link rel="apple-touch-icon" href="/.client/logo.png" />
-    <meta
-      name="theme-color"
-      content="#e1e1e1"
-      media="(prefers-color-scheme: light)"
-    />
-    <meta
-      name="theme-color"
-      content="#262626"
-      media="(prefers-color-scheme: dark)"
-    />
-    <meta name="referrer" content="no-referrer" />
 
-    <title>{{TITLE}}</title>
-    <meta property="og:image" content="/.client/logo.png" />
-    <meta property="og:description" content="{{DESCRIPTION}}" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <base href="/" />
+  <link rel="apple-touch-icon" href="/.client/logo.png" />
+  <meta name="theme-color" content="#e1e1e1" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#262626" media="(prefers-color-scheme: dark)" />
+  <meta name="referrer" content="no-referrer" />
 
-    <script>
-      // Some global variables we need to make this work
-      Deno = {
-        args: [],
-        build: {
-          arch: "x86_64",
-          os: "browser",
-        },
-        core: {
-          runMicrotasks() {
-            // console.log("Not supported");
-          },
-          setHasTickScheduled() {
-            // console.log("Not supported");
-          },
-        },
-        env: {
-          get(key) {
-            // return undefined;
-          },
-        },
-        errors: {
-          AlreadyExists: class extends Error {},
-        },
-      };
-    </script>
-    <link rel="stylesheet" href="/.client/main.css" />
-    <style id="custom-styles"></style>
-    <script type="module" src="/.client/client.js"></script>
-    <link rel="manifest" href="/.client/manifest.json" crossorigin="use-credentials"/>
-    <link rel="icon" type="image/x-icon" href="/.client/favicon.png" />
-  </head>
+  <title>{{TITLE}}</title>
+  <meta property="og:image" content="/.client/logo.png" />
+  <meta property="og:description" content="{{DESCRIPTION}}" />
 
-  <body>
-    <div id="sb-root">
-      <div id="sb-main">
-        <div id="sb-editor">
-          <div class="cm-editor">
-            <div class="cm-content">
-              {{CONTENT}}
-            </div>
+  <!-- KaTeX CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+    integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+
+  <script>
+    // Some global variables we need to make this work
+    Deno = {
+      args: [],
+      build: {
+        arch: "x86_64",
+        os: "browser",
+      },
+      core: {
+        runMicrotasks() {
+          // console.log("Not supported");
+        },
+        setHasTickScheduled() {
+          // console.log("Not supported");
+        },
+      },
+      env: {
+        get(key) {
+          // return undefined;
+        },
+      },
+      errors: {
+        AlreadyExists: class extends Error { },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="/.client/main.css" />
+  <style id="custom-styles"></style>
+  <script type="module" src="/.client/client.js"></script>
+  <link rel="manifest" href="/.client/manifest.json" crossorigin="use-credentials" />
+  <link rel="icon" type="image/x-icon" href="/.client/favicon.png" />
+</head>
+
+<body>
+  <div id="sb-root">
+    <div id="sb-main">
+      <div id="sb-editor">
+        <div class="cm-editor">
+          <div class="cm-content">
+            {{CONTENT}}
           </div>
         </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

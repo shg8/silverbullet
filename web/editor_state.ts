@@ -55,6 +55,7 @@ import { safeRun } from "$lib/async.ts";
 import { codeCopyPlugin } from "./cm_plugins/code_copy.ts";
 import { disableSpellcheck } from "./cm_plugins/spell_checking.ts";
 import { isValidEditor } from "$lib/command.ts";
+import { latexPlugin } from "./cm_plugins/latex.ts";
 
 export function createEditorState(
   client: Client,
@@ -140,6 +141,7 @@ export function createEditorState(
       }),
       inlineContentPlugin(client),
       codeCopyPlugin(client),
+      latexPlugin(client),
       highlightSpecialChars(),
       undoHistory,
       dropCursor(),

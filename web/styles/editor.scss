@@ -91,20 +91,12 @@
 
   // Indentation of follow-up lines
   @mixin lineOverflow($baseIndent, $bulletIndent: 0) {
-    text-indent: calc(
-      -1 * (#{$baseIndent}ch * var(--editor-indent-multiplier) + 2ch)
-    );
-    padding-left: calc(
-      #{$baseIndent}ch * var(--editor-indent-multiplier) + 2ch
-    );
+    text-indent: calc(-1 * (#{$baseIndent}ch * var(--editor-indent-multiplier) + 2ch));
+    padding-left: calc(#{$baseIndent}ch * var(--editor-indent-multiplier) + 2ch);
 
     &.sb-line-task {
-      text-indent: calc(
-        -1 * (#{$baseIndent}ch * var(--editor-indent-multiplier) + 5ch)
-      );
-      padding-left: calc(
-        #{$baseIndent}ch * var(--editor-indent-multiplier) + 5ch
-      );
+      text-indent: calc(-1 * (#{$baseIndent}ch * var(--editor-indent-multiplier) + 5ch));
+      padding-left: calc(#{$baseIndent}ch * var(--editor-indent-multiplier) + 5ch);
 
       .cm-list-bullet::after {
         left: calc(#{$baseIndent}ch * var(--editor-indent-multiplier) + 5ch);
@@ -112,19 +104,12 @@
     }
 
     &.sb-line-blockquote {
-      text-indent: calc(
-        -1 * (#{$baseIndent}ch * var(--editor-indent-multiplier) + 4ch)
-      );
-      padding-left: calc(
-        #{$baseIndent}ch * var(--editor-indent-multiplier) + 4ch
-      );
+      text-indent: calc(-1 * (#{$baseIndent}ch * var(--editor-indent-multiplier) + 4ch));
+      padding-left: calc(#{$baseIndent}ch * var(--editor-indent-multiplier) + 4ch);
     }
 
     .cm-list-bullet::after {
-      left: calc(
-        #{$baseIndent}ch * var(--editor-indent-multiplier) + #{$bulletIndent}ch
-          + 2ch
-      );
+      left: calc(#{$baseIndent}ch * var(--editor-indent-multiplier) + #{$bulletIndent}ch + 2ch);
     }
   }
 
@@ -280,7 +265,7 @@
     text-indent: -7ch;
   }
 
-  .sb-checkbox > input[type="checkbox"] {
+  .sb-checkbox>input[type="checkbox"] {
     width: 3ch;
   }
 
@@ -361,7 +346,7 @@
   }
 
   a.sb-wiki-link-page-missing,
-  .sb-wiki-link-page-missing > .sb-wiki-link-page {
+  .sb-wiki-link-page-missing>.sb-wiki-link-page {
     border-radius: 5px;
     padding: 0 5px;
     // white-space: nowrap;
@@ -460,7 +445,7 @@
     margin: 0 3px;
   }
 
-  .sb-code-copy-button > svg {
+  .sb-code-copy-button>svg {
     height: 1rem;
     width: 1rem;
   }
@@ -503,6 +488,7 @@
     position: relative;
     min-height: 48px;
   }
+
   .sb-lua-top-widget h1,
   .sb-lua-bottom-widget h1 {
     margin: -15px -15px 0 -15px !important;
@@ -659,7 +645,7 @@
     }
   }
 
-  .sb-line-blockquote.sb-line-ul.sb-line-li > .sb-quote.sb-meta:first-child {
+  .sb-line-blockquote.sb-line-ul.sb-line-li>.sb-quote.sb-meta:first-child {
     margin-left: -1ch;
   }
 
@@ -693,6 +679,88 @@
   .cm-scroller {
     // Give some breathing space at the bottom of the screen
     padding-bottom: 20em;
+  }
+
+  .sb-latex-inline {
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 3px;
+    }
+  }
+
+  .sb-latex-display {
+    cursor: pointer;
+    display: block;
+    margin: 0.5em auto;
+    text-align: center;
+    max-width: 100%;
+    overflow: visible;
+    padding: 5px 0;
+    line-height: normal;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 3px;
+    }
+
+    .katex-display {
+      margin: 0;
+      overflow: visible;
+    }
+
+    .sb-latex-katex-output {
+      display: block;
+      overflow: visible;
+      padding: 0 10px;
+    }
+
+    &::before,
+    &::after {
+      content: "";
+      display: block;
+      height: 0.25em;
+    }
+  }
+
+  .sb-latex-error {
+    color: #f44336;
+    border: 1px dashed #f44336;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+
+  /* Style for LaTeX blocks when they're being selected */
+  .sb-latex-inline ::selection,
+  .sb-latex-display ::selection {
+    background-color: var(--editor-selection-background-color) !important;
+  }
+
+  /* Hide widget buffers around display LaTeX blocks */
+  :is(.cm-widgetBuffer:has(+ .sb-latex-display), .sb-latex-display + .cm-widgetBuffer) {
+    display: none;
+  }
+
+  /* Make LaTeX markup more visible when editing */
+  .cm-content [class*="sb-latex"] {
+    transition: all 0.1s ease;
+  }
+
+  /* Show the source text when editing inline LaTeX */
+  :is(.InlineLatex, .DisplayLatex) {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 3px;
+    /* Add a smooth transition */
+    transition: background-color 0.1s ease;
+  }
+
+  /* Prevent selection in rendered LaTeX to avoid flickers */
+  .sb-latex-inline,
+  .sb-latex-display {
+    user-select: all;
   }
 }
 
