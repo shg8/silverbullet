@@ -739,28 +739,20 @@
     background-color: var(--editor-selection-background-color) !important;
   }
 
-  /* Hide widget buffers around display LaTeX blocks */
-  :is(.cm-widgetBuffer:has(+ .sb-latex-display), .sb-latex-display + .cm-widgetBuffer) {
-    display: none;
-  }
+  // /* Hide widget buffers around display LaTeX blocks */
+  // :is(.cm-widgetBuffer:has(+ .sb-latex-display), .sb-latex-display + .cm-widgetBuffer) {
+  //   display: none;
+  // }
 
   /* Make LaTeX markup more visible when editing */
   .cm-content [class*="sb-latex"] {
-    transition: all 0.1s ease;
+    transition: background-color 0.15s ease;
   }
 
   /* Show the source text when editing inline LaTeX */
   :is(.InlineLatex, .DisplayLatex) {
     background-color: rgba(0, 0, 0, 0.03);
     border-radius: 3px;
-    /* Add a smooth transition */
-    transition: background-color 0.1s ease;
-  }
-
-  /* Prevent selection in rendered LaTeX to avoid flickers */
-  .sb-latex-inline,
-  .sb-latex-display {
-    user-select: all;
   }
 }
 

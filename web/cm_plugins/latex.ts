@@ -220,67 +220,88 @@ function createLatexDecorations(view: EditorView, client: Client) {
 export const latexPlugin = (client: Client) => {
   console.log("Initializing LaTeX plugin");
   
-  // Track if we're currently in a drag operation to prevent flickering
+  // Keep track of drag state
   let isDragging = false;
-  let dragEndTimeout: number | null = null;
-  
-  // Wait until the drag operation completely ends before updating
-  const handleDragEnd = (view: EditorView) => {
-    if (dragEndTimeout) {
-      clearTimeout(dragEndTimeout);
-    }
-    
-    // Set a small timeout to ensure drag is completely finished
-    dragEndTimeout = setTimeout(() => {
-      console.log("Drag operation ended, updating LaTeX decorations");
-      isDragging = false;
-      // Force update decorations after drag ends
-      view.dispatch({});
-    }, 200) as unknown as number;
-  };
   
   return ViewPlugin.fromClass(
     class {
       decorations: DecorationSet;
+      private cleanup?: () => void;
       
       constructor(view: EditorView) {
         console.log("LaTeX plugin constructor called");
-        
-        // Setup mouse event handlers to detect drag operations
-        view.dom.addEventListener('mousedown', () => {
-          isDragging = false;
-        });
-        
-        view.dom.addEventListener('mousemove', (e) => {
-          // Only set dragging if button is pressed (drag operation)
-          if (e.buttons !== 0) {
-            isDragging = true;
-          }
-        });
-        
-        view.dom.addEventListener('mouseup', () => {
-          if (isDragging) {
-            handleDragEnd(view);
-          }
-        });
-        
         this.decorations = createLatexDecorations(view, client);
+        
+        // Add event listeners for drag operations
+        const handleMouseDown = () => {
+          isDragging = true;
+        };
+        
+        const handleMouseUp = () => {
+          if (isDragging) {
+            isDragging = false;
+            // Add a small timeout to ensure the selection is fully settled
+            setTimeout(() => {
+              // Force redecoration after drag is complete
+              this.decorations = createLatexDecorations(view, client);
+              view.update([]);
+            }, 50);
+          }
+        };
+        
+        // Touch event handlers for mobile
+        const handleTouchStart = () => {
+          isDragging = true;
+        };
+        
+        const handleTouchEnd = () => {
+          if (isDragging) {
+            isDragging = false;
+            // Add a small timeout to ensure the selection is fully settled
+            setTimeout(() => {
+              // Force redecoration after touch is complete
+              this.decorations = createLatexDecorations(view, client);
+              view.update([]);
+            }, 50);
+          }
+        };
+        
+        // Add listeners to the document to catch events even if the cursor leaves the editor
+        document.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchstart', handleTouchStart);
+        document.addEventListener('touchend', handleTouchEnd);
+        
+        // Store cleanup function
+        this.cleanup = () => {
+          document.removeEventListener('mousedown', handleMouseDown);
+          document.removeEventListener('mouseup', handleMouseUp);
+          document.removeEventListener('touchstart', handleTouchStart);
+          document.removeEventListener('touchend', handleTouchEnd);
+        };
+      }
+      
+      destroy() {
+        if (this.cleanup) {
+          this.cleanup();
+        }
       }
       
       update(update: ViewUpdate) {
-        // Skip updates during drag operations to prevent flickering
-        if (isDragging && update.selectionSet && !update.docChanged) {
-          return;
-        }
-        
+        // Only update decorations when:
+        // 1. Document content changes
+        // 2. Viewport changes
+        // 3. Syntax tree changes
+        // 4. We want to force an update after drag ends (captured by mouseup handler)
+        // Do NOT update on selectionSet during dragging
         if (
           update.docChanged || 
           update.viewportChanged ||
-          update.selectionSet ||
+          (update.selectionSet && !isDragging) ||
           syntaxTree(update.startState) !== syntaxTree(update.state)
         ) {
-          if (update.selectionSet) {
-            console.log("LaTeX plugin updating decorations due to selection change");
+          if (update.selectionSet && !isDragging) {
+            console.log("LaTeX plugin updating decorations due to selection change (not dragging)");
           }
           console.log("LaTeX plugin updating decorations");
           this.decorations = createLatexDecorations(update.view, client);
@@ -288,15 +309,7 @@ export const latexPlugin = (client: Client) => {
       }
     },
     {
-      decorations: (v) => v.decorations,
-      eventHandlers: {
-        // Handle drag end cases when mouse leaves the editor area
-        mouseleave: (e, view) => {
-          if (isDragging) {
-            handleDragEnd(view);
-          }
-        }
-      }
+      decorations: (v) => v.decorations
     },
   );
 }; 
