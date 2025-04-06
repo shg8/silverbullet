@@ -739,10 +739,10 @@
     background-color: var(--editor-selection-background-color) !important;
   }
 
-  // /* Hide widget buffers around display LaTeX blocks */
-  // :is(.cm-widgetBuffer:has(+ .sb-latex-display), .sb-latex-display + .cm-widgetBuffer) {
-  //   display: none;
-  // }
+  /* Hide widget buffers around display LaTeX blocks */
+  :is(.cm-widgetBuffer:has(+ .sb-latex-display), .sb-latex-display + .cm-widgetBuffer) {
+    display: none;
+  }
 
   /* Make LaTeX markup more visible when editing */
   .cm-content [class*="sb-latex"] {

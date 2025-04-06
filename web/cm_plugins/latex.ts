@@ -41,22 +41,6 @@ class InlineLatexWidget extends WidgetType {
       wrapper.classList.add("sb-latex-error");
     }
 
-    // Make it clickable to enable editing
-    wrapper.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      if (this.client.dispatchClickEvent) {
-        this.client.dispatchClickEvent({
-          pos: this.pos,
-          page: this.client.currentPage,
-          metaKey: e.metaKey,
-          ctrlKey: e.ctrlKey,
-          altKey: e.altKey
-        });
-      }
-    });
-
     return wrapper;
   }
 
@@ -101,22 +85,6 @@ class DisplayLatexWidget extends WidgetType {
       wrapper.classList.add("sb-latex-error");
     }
 
-    // Make it clickable to enable editing
-    wrapper.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log("Display LaTeX clicked, navigating to position:", this.pos);
-      if (this.client.dispatchClickEvent) {
-        this.client.dispatchClickEvent({
-          pos: this.pos,
-          page: this.client.currentPage,
-          metaKey: e.metaKey,
-          ctrlKey: e.ctrlKey,
-          altKey: e.altKey
-        });
-      }
-    });
-
     return wrapper;
   }
 
@@ -140,7 +108,7 @@ function createLatexDecorations(view: EditorView, client: Client) {
     for (const range of selections) {
       // If the selection overlaps with the node at all, consider it selected
       if (range.from < nodeTo && range.to > nodeFrom) {
-        console.log(`LaTeX node (${nodeFrom}-${nodeTo}) is in selection (${range.from}-${range.to})`);
+        // console.log(`LaTeX node (${nodeFrom}-${nodeTo}) is in selection (${range.from}-${range.to})`);
         return true;
       }
     }
@@ -194,7 +162,7 @@ function createLatexDecorations(view: EditorView, client: Client) {
             
             if (match) {
               const formula = match[1];
-              console.log("Found display LaTeX:", formula);
+              // console.log("Found display LaTeX:", formula);
               
               // Simply replace the entire node with the widget
               const deco = Decoration.replace({
@@ -213,13 +181,11 @@ function createLatexDecorations(view: EditorView, client: Client) {
     });
   }
   
-  console.log(`Created decorations - inline: ${inlineCount}, display: ${displayCount}`);
+  // console.log(`Created decorations - inline: ${inlineCount}, display: ${displayCount}`);
   return Decoration.set(widgets, true);
 }
 
-export const latexPlugin = (client: Client) => {
-  console.log("Initializing LaTeX plugin");
-  
+export const latexPlugin = (client: Client) => {  
   // Keep track of drag state
   let isDragging = false;
   
@@ -229,7 +195,6 @@ export const latexPlugin = (client: Client) => {
       private cleanup?: () => void;
       
       constructor(view: EditorView) {
-        console.log("LaTeX plugin constructor called");
         this.decorations = createLatexDecorations(view, client);
         
         // Add event listeners for drag operations
@@ -288,28 +253,71 @@ export const latexPlugin = (client: Client) => {
       }
       
       update(update: ViewUpdate) {
+        // Check if the cursor position has changed
+        const cursorMoved = update.state.selection.main.head !== update.startState.selection.main.head;
+        
         // Only update decorations when:
         // 1. Document content changes
         // 2. Viewport changes
         // 3. Syntax tree changes
-        // 4. We want to force an update after drag ends (captured by mouseup handler)
-        // Do NOT update on selectionSet during dragging
+        // 4. Cursor position changes (not during dragging)
+        // 5. Selection changes (not during dragging)
+        // 6. We want to force an update after drag ends (captured by mouseup handler)
         if (
           update.docChanged || 
           update.viewportChanged ||
           (update.selectionSet && !isDragging) ||
+          (cursorMoved && !isDragging) ||
           syntaxTree(update.startState) !== syntaxTree(update.state)
         ) {
-          if (update.selectionSet && !isDragging) {
-            console.log("LaTeX plugin updating decorations due to selection change (not dragging)");
-          }
-          console.log("LaTeX plugin updating decorations");
+          // if (cursorMoved && !isDragging) {
+          //   console.log("LaTeX plugin updating decorations due to cursor movement");
+          // } else if (update.selectionSet && !isDragging) {
+          //   console.log("LaTeX plugin updating decorations due to selection change (not dragging)");
+          // }
+          // console.log("LaTeX plugin updating decorations");
           this.decorations = createLatexDecorations(update.view, client);
         }
       }
     },
     {
-      decorations: (v) => v.decorations
+      decorations: (v) => v.decorations,
+      eventHandlers: {
+        mousedown: (e, view) => {
+          // prevent default if node is a latex widget
+          if (!(e.target instanceof HTMLElement && (
+            e.target.classList.contains("sb-latex-inline") || 
+            e.target.classList.contains("sb-latex-display") ||
+            e.target.closest(".sb-latex-inline") || 
+            e.target.closest(".sb-latex-display")
+          ))) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+        },
+        mouseup: (e, view) => {
+          if (!(e.target instanceof HTMLElement && (
+            e.target.classList.contains("sb-latex-inline") || 
+            e.target.classList.contains("sb-latex-display") ||
+            e.target.closest(".sb-latex-inline") || 
+            e.target.closest(".sb-latex-display")
+          ))) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+          let pos = view.posAtDOM(e.target as HTMLElement);
+          view.dispatch({
+            selection: { anchor: pos, head: pos },
+          })
+          client.dispatchClickEvent({
+            pos: pos,
+            page: client.currentPage,
+            metaKey: e.metaKey,
+            ctrlKey: e.ctrlKey,
+            altKey: e.altKey,
+          });
+        },
+      },
     },
   );
 }; 
